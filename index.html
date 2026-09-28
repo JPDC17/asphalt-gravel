@@ -331,6 +331,7 @@ header.top {
   min-height: 0;
 }
 .field .conv:empty { display: none; }
+.field.bad input { border-color: var(--err); background: var(--err-bg); }
 .field.needs-unit .conv { color: var(--err); font-weight: 600; }
 
 .notes { display: flex; flex-direction: column; gap: 6px; }
@@ -532,7 +533,10 @@ footer.foot {
   * { transition: none !important; animation: none !important; }
 }
 @media (max-width: 360px) {
-  .field { grid-template-columns: 54px 1fr 84px; }
+  .field { grid-template-columns: 56px 1fr 84px; gap: 6px; }
+  .field > label { font-size: 12px; letter-spacing: .02em; }
+  .tab { font-size: 15px; gap: 5px; letter-spacing: .02em; }
+  .row { padding: 10px; }
   .totalbar .big { font-size: 30px; }
 }
 </style>
@@ -689,12 +693,17 @@ footer.foot {
   }
 
   // ---------- Number helpers ----------
+  // Parses what people type on a phone keypad. "1,200" and "1,200.5" use a
+  // thousands separator; "2,5" is a decimal comma. Returns NaN for blank or
+  // anything that isn't a plain number (negative numbers included).
   function num(s) {
     if (s == null) return NaN;
-    s = String(s).trim().replace(",", ".");
+    s = String(s).replace(/\s+/g, "");
     if (s === "") return NaN;
-    var n = Number(s);
-    return isFinite(n) ? n : NaN;
+    if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
+    else if (/^\d*,\d+$/.test(s)) s = s.replace(",", ".");
+    if (!/^(\d+\.?\d*|\.\d+)$/.test(s)) return NaN;
+    return Number(s);
   }
   function fmt(n, dp) {
     if (!isFinite(n)) return "–";
@@ -710,11 +719,15 @@ footer.foot {
   // ---------- Row maths ----------
   // Returns { m3, area, notes[], missingUnit: {key:true}, complete }
   function compute(r) {
-    var out = { m3: NaN, area: NaN, notes: [], missing: {}, conv: {}, complete: false };
+    var out = { m3: NaN, area: NaN, notes: [], missing: {}, bad: {}, conv: {}, complete: false };
     function val(key, table) {
       var f = r[key];
+      if (String(f.v).trim() === "") return NaN;
       var n = num(f.v);
-      if (isNaN(n)) return NaN;
+      if (isNaN(n)) {
+        out.bad[key] = /^\s*-/.test(f.v) ? "Use a positive number" : "Enter a number, e.g. 12.5";
+        return NaN;
+      }
       if (!f.u) { out.missing[key] = true; return NaN; }
       var m = n * factor(table, f.u);
       return m;
@@ -744,7 +757,6 @@ footer.foot {
       var V = val("vol", VOL);
       if (isFinite(V)) { out.conv.vol = "= " + fmtSmart(V) + " m³"; out.m3 = V; out.complete = true; }
     }
-    if (out.complete && out.m3 < 0) out.notes.push("<b>Negative value.</b> Remove the minus sign.");
     return out;
   }
   function checkDepth(D, out) {
@@ -822,9 +834,10 @@ footer.foot {
       var key = f.dataset.field;
       var sel = f.querySelector("select");
       sel.classList.toggle("unset", !r[key].u);
-      var needs = !!c.missing[key];
-      f.classList.toggle("needs-unit", needs);
-      f.querySelector(".conv").textContent = needs ? "Choose a unit for this number" : (c.conv[key] || "");
+      var needs = !!c.missing[key], bad = c.bad[key];
+      f.classList.toggle("needs-unit", needs || !!bad);
+      f.classList.toggle("bad", !!bad);
+      f.querySelector(".conv").textContent = bad || (needs ? "Choose a unit for this number" : (c.conv[key] || ""));
     });
     el.querySelector(".notes").innerHTML = c.notes.map(function (n) { return '<div class="note">' + n + "</div>"; }).join("");
     var res = el.querySelector(".row-result");
@@ -837,7 +850,7 @@ footer.foot {
     } else {
       res.classList.add("pending");
       sub.textContent = isFinite(c.area) ? fmt(c.area, 2) + " m²" : "";
-      t.textContent = Object.keys(c.missing).length ? "Pick units" : "Enter all values";
+      t.textContent = Object.keys(c.bad).length ? "Fix the number" : Object.keys(c.missing).length ? "Pick units" : "Enter all values";
     }
   }
 
@@ -1153,6 +1166,8 @@ footer.foot {
   });
   document.addEventListener("keydown", function (e) {
     if (state.tab !== "calc" || e.metaKey || e.ctrlKey || e.altKey) return;
+    // Let Enter/Space activate a focused key normally.
+    if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest("button")) return;
     var map = { "*": "×", "x": "×", "/": "÷", "-": "−", "+": "+", "Enter": "=", "=": "=", "Backspace": "back", "Escape": "AC", "%": "%", ".": ".", ",": "." };
     var k = /^\d$/.test(e.key) ? e.key : map[e.key];
     if (k) { e.preventDefault(); press(k); }
