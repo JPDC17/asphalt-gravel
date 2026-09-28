@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1C2126">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tonnage">
+<title>Asphalt &amp; Gravel Tonnage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #ECEEF0;
+  --surface: #FFFFFF;
+  --surface-2: #F5F6F7;
+  --ink: #1C2126;
+  --muted: #5C6670;
+  --line: #D3D8DD;
+  --accent: #F2A900;
+  --accent-ink: #1C2126;
+  --accent-soft: #FFF3D1;
+  --warn: #9A3F06;
+  --warn-bg: #FEF0C7;
+  --err: #B42318;
+  --err-bg: #FDE7E5;
+  --asphalt: #2B3036;
+  --gravel: #A89A85;
+  --key: #FFFFFF;
+  --key-op: #DDE2E6;
+  --shadow: 0 1px 2px rgba(20, 26, 32, .06), 0 4px 16px rgba(20, 26, 32, .06);
+  --display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #15181B;
+    --surface: #1F2428;
+    --surface-2: #262C31;
+    --ink: #E9ECEE;
+    --muted: #9AA4AD;
+    --line: #353C43;
+    --accent: #F5B51F;
+    --accent-ink: #15181B;
+    --accent-soft: #3A2E10;
+    --warn: #F7B267;
+    --warn-bg: #3A2A12;
+    --err: #FF8A80;
+    --err-bg: #3D1C1A;
+    --asphalt: #0E1012;
+    --gravel: #8C806E;
+    --key: #262C31;
+    --key-op: #323940;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #15181B;
+  --surface: #1F2428;
+  --surface-2: #262C31;
+  --ink: #E9ECEE;
+  --muted: #9AA4AD;
+  --line: #353C43;
+  --accent: #F5B51F;
+  --accent-ink: #15181B;
+  --accent-soft: #3A2E10;
+  --warn: #F7B267;
+  --warn-bg: #3A2A12;
+  --err: #FF8A80;
+  --err-bg: #3D1C1A;
+  --asphalt: #0E1012;
+  --gravel: #8C806E;
+  --key: #262C31;
+  --key-op: #323940;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.45 var(--body);
+  font-variant-numeric: tabular-nums;
+  padding-top: env(safe-area-inset-top, 0px);
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding-inline: 16px;
+  padding-block: 12px 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Header + tabs */
+header.top {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 10;
+  background: var(--bg);
+  padding-block: 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.brand h1 {
+  margin: 0;
+  font: 700 26px/1 var(--display);
+  letter-spacing: .01em;
+  text-transform: uppercase;
+}
+.brand small {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: right;
+}
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+.tab {
+  border: 0;
+  background: transparent;
+  border-radius: 9px;
+  padding: 10px 4px;
+  font: 600 17px/1 var(--display);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+}
+.tab[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex: none;
+}
+.swatch.asphalt {
+  background-color: var(--asphalt);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.35) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.25) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,.3) 0 .8px, transparent 1.3px);
+}
+.swatch.gravel {
+  background-color: var(--gravel);
+  background-image:
+    radial-gradient(circle at 25% 25%, #d8cfc1 0 2px, transparent 2.5px),
+    radial-gradient(circle at 70% 45%, #6f6453 0 2px, transparent 2.5px),
+    radial-gradient(circle at 35% 75%, #c4b8a5 0 1.8px, transparent 2.3px),
+    radial-gradient(circle at 78% 82%, #5c5243 0 1.5px, transparent 2px);
+}
+
+/* Material panel */
+.material-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+.material-head h2 {
+  margin: 0;
+  font: 700 22px/1.1 var(--display);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+.density {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+.density b { color: var(--ink); font-weight: 600; }
+.hint {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.rows { display: flex; flex-direction: column; gap: 12px; }
+.row {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.row-top {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.row-num {
+  font: 700 15px/1 var(--display);
+  color: var(--muted);
+  min-width: 22px;
+}
+.row-label {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid transparent;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 16px;
+}
+.row-label::placeholder { color: var(--muted); }
+.icon-btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  flex: none;
+}
+.icon-btn:hover { color: var(--err); border-color: var(--err); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+.seg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--surface-2);
+  border-radius: 9px;
+  padding: 3px;
+  gap: 3px;
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 7px;
+  padding: 7px 4px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  min-height: 36px;
+}
+.seg button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(0,0,0,.12);
+  font-weight: 600;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 64px 1fr 96px;
+  gap: 8px;
+  align-items: center;
+}
+.field > label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.field input, .field select {
+  width: 100%;
+  min-width: 0;
+  height: 46px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  padding: 0 10px;
+  font-size: 17px;
+}
+.field input { font-variant-numeric: tabular-nums; }
+.field select {
+  padding-right: 4px;
+  font-weight: 600;
+}
+.field select.unset {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-weight: 500;
+}
+.field.needs-unit select.unset {
+  border-color: var(--err);
+  background: var(--err-bg);
+}
+.field .conv {
+  grid-column: 2 / 4;
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: -4px;
+  min-height: 0;
+}
+.field .conv:empty { display: none; }
+.field.needs-unit .conv { color: var(--err); font-weight: 600; }
+
+.notes { display: flex; flex-direction: column; gap: 6px; }
+.note {
+  font-size: 14px;
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.note b { font-weight: 600; }
+
+.row-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+  flex-wrap: wrap;
+}
+.row-result .sub { font-size: 14px; color: var(--muted); }
+.row-result .t {
+  font: 700 24px/1 var(--display);
+}
+.row-result .t small { font: 600 15px var(--display); color: var(--muted); margin-left: 3px; }
+.row-result.pending .t { color: var(--muted); font-size: 18px; }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn {
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 0 16px;
+  min-height: 48px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  flex: 1;
+  font: 700 18px/1 var(--display);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  white-space: nowrap;
+}
+.btn.ghost { color: var(--muted); }
+.btn.danger-armed { border-color: var(--err); color: var(--err); background: var(--err-bg); }
+
+/* Totals bar */
+.totalbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  background: var(--asphalt);
+  color: #F3F4F5;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -6px 20px rgba(0,0,0,.18);
+}
+.totalbar-in {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.totalbar .lbl {
+  font: 600 13px/1.2 var(--body);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #AEB6BD;
+}
+.totalbar .meta { font-size: 14px; color: #C9CFD4; }
+.totalbar .big {
+  font: 700 36px/1 var(--display);
+  color: #FFC53D;
+  text-align: right;
+  white-space: nowrap;
+}
+.totalbar .big small { font-size: 18px; color: #F3F4F5; margin-left: 4px; }
+.totalbar .copy {
+  border: 1px solid #4A525A;
+  background: transparent;
+  color: #F3F4F5;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* Calculator */
+.calc {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.screen {
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-height: 104px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 4px;
+  overflow: hidden;
+}
+.screen .expr {
+  font-size: 18px;
+  color: var(--muted);
+  word-break: break-all;
+  text-align: right;
+  min-height: 1.4em;
+}
+.screen .res {
+  font: 700 42px/1.05 var(--display);
+  word-break: break-all;
+  text-align: right;
+}
+.screen .res.err { color: var(--err); font-size: 26px; }
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.key {
+  border: 1px solid var(--line);
+  background: var(--key);
+  border-radius: 12px;
+  min-height: 60px;
+  font: 600 26px/1 var(--display);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.key:active { transform: translateY(1px); filter: brightness(.95); }
+.key.op { background: var(--key-op); }
+.key.eq { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.key.fn { font-size: 20px; color: var(--muted); }
+.inserts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.inserts .btn { font-size: 15px; min-height: 44px; padding: 0 10px; }
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.history button {
+  border: 0;
+  background: transparent;
+  text-align: right;
+  padding: 4px 2px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.history button b { color: var(--ink); font-weight: 600; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink);
+  color: var(--bg);
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  z-index: 30;
+}
+footer.foot {
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+@media (max-width: 360px) {
+  .field { grid-template-columns: 54px 1fr 84px; }
+  .totalbar .big { font-size: 30px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Tonnage Calc</h1>
+      <small>Metric tonnes</small>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Calculator type">
+      <button class="tab" role="tab" id="tab-asphalt" data-tab="asphalt" aria-selected="true"><span class="swatch asphalt"></span>Asphalt</button>
+      <button class="tab" role="tab" id="tab-gravel" data-tab="gravel" aria-selected="false"><span class="swatch gravel"></span>Gravel</button>
+      <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Calc</button>
+    </nav>
+  </header>
+
+  <main id="panel-material">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="material-head">
+        <h2 id="mat-title">Asphalt areas</h2>
+        <span class="density">Density <b id="mat-density">2.5 t/m³</b></span>
+      </div>
+      <p class="hint">Enter each area you're paving or filling. Pick a unit for every number. The converted metric value shows under each entry so you can check it.</p>
+      <div class="rows" id="rows"></div>
+      <div class="actions">
+        <button class="btn primary" id="add-row" type="button">+ Add measurement</button>
+        <button class="btn ghost" id="clear-rows" type="button">Clear all</button>
+      </div>
+    </div>
+  </main>
+
+  <main id="panel-calc" hidden>
+    <div class="calc">
+      <div class="screen" aria-live="polite">
+        <div class="expr" id="calc-expr"></div>
+        <div class="res" id="calc-res">0</div>
+      </div>
+      <div class="inserts">
+        <button class="btn" type="button" id="ins-asphalt"><span class="swatch asphalt"></span>Asphalt total</button>
+        <button class="btn" type="button" id="ins-gravel"><span class="swatch gravel"></span>Gravel total</button>
+      </div>
+      <div class="keys" id="keys">
+        <button class="key fn" data-k="AC">AC</button>
+        <button class="key fn" data-k="back" aria-label="Backspace">⌫</button>
+        <button class="key op" data-k="%">%</button>
+        <button class="key op" data-k="÷">÷</button>
+        <button class="key" data-k="7">7</button>
+        <button class="key" data-k="8">8</button>
+        <button class="key" data-k="9">9</button>
+        <button class="key op" data-k="×">×</button>
+        <button class="key" data-k="4">4</button>
+        <button class="key" data-k="5">5</button>
+        <button class="key" data-k="6">6</button>
+        <button class="key op" data-k="−">−</button>
+        <button class="key" data-k="1">1</button>
+        <button class="key" data-k="2">2</button>
+        <button class="key" data-k="3">3</button>
+        <button class="key op" data-k="+">+</button>
+        <button class="key fn" data-k="neg" aria-label="Change sign">±</button>
+        <button class="key" data-k="0">0</button>
+        <button class="key" data-k=".">.</button>
+        <button class="key eq" data-k="=">=</button>
+      </div>
+      <div class="history" id="history"></div>
+    </div>
+  </main>
+
+  <footer class="foot">Results are estimates. Tonnes = volume (m³) × density. Check local mix specs before ordering.</footer>
+</div>
+
+<div class="totalbar" id="totalbar">
+  <div class="totalbar-in">
+    <div>
+      <div class="lbl" id="total-lbl">Asphalt total</div>
+      <div class="meta" id="total-meta">0 areas · 0 m³</div>
+      <button class="copy" id="copy" type="button">Copy summary</button>
+    </div>
+    <div class="big" id="total-big">0.00<small>t</small></div>
+  </div>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Units (factor to metres / square metres) ----------
+  var LEN = {
+    metric: [["m", "m", 1], ["cm", "cm", 0.01], ["mm", "mm", 0.001]],
+    imperial: [["ft", "ft", 0.3048], ["in", "in", 0.0254], ["yd", "yd", 0.9144]]
+  };
+  var DEPTH = {
+    metric: [["mm", "mm", 0.001], ["cm", "cm", 0.01], ["m", "m", 1]],
+    imperial: [["in", "in", 0.0254], ["ft", "ft", 0.3048]]
+  };
+  var AREA = {
+    metric: [["m2", "m²", 1], ["ha", "ha", 10000]],
+    imperial: [["ft2", "ft²", 0.09290304], ["yd2", "yd²", 0.83612736], ["ac", "acre", 4046.8564224]]
+  };
+  var VOL = {
+    metric: [["m3", "m³", 1]],
+    imperial: [["yd3", "yd³", 0.764554857984], ["ft3", "ft³", 0.028316846592]]
+  };
+  function factor(table, u) {
+    var all = table.metric.concat(table.imperial);
+    for (var i = 0; i < all.length; i++) if (all[i][0] === u) return all[i][2];
+    return null;
+  }
+  function unitLabel(table, u) {
+    var all = table.metric.concat(table.imperial);
+    for (var i = 0; i < all.length; i++) if (all[i][0] === u) return all[i][1];
+    return u;
+  }
+
+  var MATERIALS = {
+    asphalt: { name: "Asphalt", density: 2.5 },
+    gravel: { name: "Gravel", density: 2.2 }
+  };
+
+  // ---------- State ----------
+  var KEY = "tonnage-calc-v1";
+  var uid = 0;
+  function blankRow(prev) {
+    var r = {
+      id: ++uid, label: "", mode: "lw",
+      l: { v: "", u: "" }, w: { v: "", u: "" }, d: { v: "", u: "" },
+      a: { v: "", u: "" }, vol: { v: "", u: "" }
+    };
+    // Carry units from the previous row so repeat entries are quicker,
+    // but the first row always starts with no unit chosen.
+    if (prev) {
+      r.mode = prev.mode;
+      ["l", "w", "d", "a", "vol"].forEach(function (k) { r[k].u = prev[k].u; });
+    }
+    return r;
+  }
+  var state = { tab: "asphalt", asphalt: [blankRow()], gravel: [blankRow()] };
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "null");
+    if (saved && saved.asphalt && saved.gravel) {
+      state = saved;
+      [].concat(state.asphalt, state.gravel).forEach(function (r) {
+        r.id = ++uid;
+        if (!r.vol) r.vol = { v: "", u: "" };
+      });
+      if (!state.asphalt.length) state.asphalt.push(blankRow());
+      if (!state.gravel.length) state.gravel.push(blankRow());
+    }
+  } catch (e) {}
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+
+  // ---------- Number helpers ----------
+  function num(s) {
+    if (s == null) return NaN;
+    s = String(s).trim().replace(",", ".");
+    if (s === "") return NaN;
+    var n = Number(s);
+    return isFinite(n) ? n : NaN;
+  }
+  function fmt(n, dp) {
+    if (!isFinite(n)) return "–";
+    return n.toLocaleString(undefined, { minimumFractionDigits: dp, maximumFractionDigits: dp });
+  }
+  function fmtSmart(n) {
+    if (!isFinite(n)) return "–";
+    var a = Math.abs(n);
+    var dp = a === 0 ? 0 : a < 0.1 ? 4 : a < 10 ? 3 : 2;
+    return n.toLocaleString(undefined, { maximumFractionDigits: dp });
+  }
+
+  // ---------- Row maths ----------
+  // Returns { m3, area, notes[], missingUnit: {key:true}, complete }
+  function compute(r) {
+    var out = { m3: NaN, area: NaN, notes: [], missing: {}, conv: {}, complete: false };
+    function val(key, table) {
+      var f = r[key];
+      var n = num(f.v);
+      if (isNaN(n)) return NaN;
+      if (!f.u) { out.missing[key] = true; return NaN; }
+      var m = n * factor(table, f.u);
+      return m;
+    }
+    if (r.mode === "lw") {
+      var L = val("l", LEN), W = val("w", LEN), D = val("d", DEPTH);
+      if (isFinite(L)) out.conv.l = "= " + fmtSmart(L) + " m";
+      if (isFinite(W)) out.conv.w = "= " + fmtSmart(W) + " m";
+      if (isFinite(D)) out.conv.d = "= " + fmtSmart(D * 1000) + " mm (" + fmtSmart(D) + " m)";
+      [["l", L, "Length"], ["w", W, "Width"]].forEach(function (x) {
+        if (!isFinite(x[1])) return;
+        if (x[1] > 0 && x[1] < 0.3) out.notes.push("<b>" + x[2] + " is only " + fmtSmart(x[1] * 100) + " cm.</b> Check the unit.");
+        if (x[1] > 3000) out.notes.push("<b>" + x[2] + " is " + fmtSmart(x[1] / 1000) + " km.</b> Check the unit.");
+      });
+      checkDepth(D, out);
+      if (isFinite(L) && isFinite(W)) out.area = L * W;
+      if (isFinite(L) && isFinite(W) && isFinite(D)) { out.m3 = L * W * D; out.complete = true; }
+    } else if (r.mode === "area") {
+      var A = val("a", AREA), D2 = val("d", DEPTH);
+      if (isFinite(A)) out.conv.a = "= " + fmtSmart(A) + " m²";
+      if (isFinite(D2)) out.conv.d = "= " + fmtSmart(D2 * 1000) + " mm (" + fmtSmart(D2) + " m)";
+      if (isFinite(A) && A > 0 && A < 0.5) out.notes.push("<b>Area is only " + fmtSmart(A) + " m².</b> Check the unit.");
+      checkDepth(D2, out);
+      if (isFinite(A)) out.area = A;
+      if (isFinite(A) && isFinite(D2)) { out.m3 = A * D2; out.complete = true; }
+    } else {
+      var V = val("vol", VOL);
+      if (isFinite(V)) { out.conv.vol = "= " + fmtSmart(V) + " m³"; out.m3 = V; out.complete = true; }
+    }
+    if (out.complete && out.m3 < 0) out.notes.push("<b>Negative value.</b> Remove the minus sign.");
+    return out;
+  }
+  function checkDepth(D, out) {
+    if (!isFinite(D) || D <= 0) return;
+    if (D < 0.01) out.notes.push("<b>Depth is only " + fmtSmart(D * 1000) + " mm.</b> Check the unit.");
+    else if (D > 0.6) out.notes.push("<b>Depth is " + fmtSmart(D) + " m (" + fmtSmart(D / 0.3048) + " ft).</b> That's very deep. Did you mean mm or in?");
+  }
+
+  // ---------- Rendering ----------
+  var rowsEl = document.getElementById("rows");
+  var ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  function unitSelect(table, key, cur, idBase) {
+    var h = '<select id="' + idBase + '-u" data-f="' + key + '" data-part="u" class="' + (cur ? "" : "unset") + '" aria-label="Unit">';
+    h += '<option value=""' + (cur ? "" : " selected") + '>Unit…</option>';
+    h += '<optgroup label="Metric">';
+    table.metric.forEach(function (u) { h += '<option value="' + u[0] + '"' + (cur === u[0] ? " selected" : "") + ">" + u[1] + "</option>"; });
+    h += '</optgroup><optgroup label="Imperial">';
+    table.imperial.forEach(function (u) { h += '<option value="' + u[0] + '"' + (cur === u[0] ? " selected" : "") + ">" + u[1] + "</option>"; });
+    h += "</optgroup></select>";
+    return h;
+  }
+  function field(r, key, label, table, idBase) {
+    var id = idBase + "-" + key;
+    return '<div class="field" data-field="' + key + '">' +
+      '<label for="' + id + '">' + label + "</label>" +
+      '<input id="' + id + '" data-f="' + key + '" data-part="v" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(r[key].v) + '">' +
+      unitSelect(table, key, r[key].u, id) +
+      '<div class="conv"></div></div>';
+  }
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+  }
+
+  function renderRows() {
+    var mat = state.tab;
+    var list = state[mat];
+    rowsEl.innerHTML = "";
+    list.forEach(function (r, i) {
+      var idBase = mat + "-r" + r.id;
+      var el = document.createElement("section");
+      el.className = "row";
+      el.dataset.id = r.id;
+      var fields = "";
+      if (r.mode === "lw") {
+        fields = field(r, "l", "Length", LEN, idBase) + field(r, "w", "Width", LEN, idBase) + field(r, "d", "Depth", DEPTH, idBase);
+      } else if (r.mode === "area") {
+        fields = field(r, "a", "Area", AREA, idBase) + field(r, "d", "Depth", DEPTH, idBase);
+      } else {
+        fields = field(r, "vol", "Volume", VOL, idBase);
+      }
+      el.innerHTML =
+        '<div class="row-top">' +
+          '<span class="row-num">#' + (i + 1) + "</span>" +
+          '<input class="row-label" id="' + idBase + '-label" data-part="label" type="text" placeholder="Name (e.g. Driveway)" value="' + esc(r.label) + '" aria-label="Area name">' +
+          '<button class="icon-btn" type="button" data-act="remove" aria-label="Remove measurement ' + (i + 1) + '">' + ICON_X + "</button>" +
+        "</div>" +
+        '<div class="seg" role="group" aria-label="Measure by">' +
+          '<button type="button" data-mode="lw" aria-pressed="' + (r.mode === "lw") + '">L × W × D</button>' +
+          '<button type="button" data-mode="area" aria-pressed="' + (r.mode === "area") + '">Area × Depth</button>' +
+          '<button type="button" data-mode="vol" aria-pressed="' + (r.mode === "vol") + '">Volume</button>' +
+        "</div>" +
+        fields +
+        '<div class="notes"></div>' +
+        '<div class="row-result pending"><span class="sub"></span><span class="t"></span></div>';
+      rowsEl.appendChild(el);
+      updateRow(el, r);
+    });
+    updateTotal();
+  }
+
+  function updateRow(el, r) {
+    var c = compute(r);
+    el.querySelectorAll(".field").forEach(function (f) {
+      var key = f.dataset.field;
+      var sel = f.querySelector("select");
+      sel.classList.toggle("unset", !r[key].u);
+      var needs = !!c.missing[key];
+      f.classList.toggle("needs-unit", needs);
+      f.querySelector(".conv").textContent = needs ? "Choose a unit for this number" : (c.conv[key] || "");
+    });
+    el.querySelector(".notes").innerHTML = c.notes.map(function (n) { return '<div class="note">' + n + "</div>"; }).join("");
+    var res = el.querySelector(".row-result");
+    var sub = res.querySelector(".sub"), t = res.querySelector(".t");
+    if (c.complete) {
+      var tonnes = c.m3 * MATERIALS[state.tab].density;
+      res.classList.remove("pending");
+      sub.textContent = (isFinite(c.area) ? fmt(c.area, 2) + " m² · " : "") + fmt(c.m3, 3) + " m³";
+      t.innerHTML = fmt(tonnes, 2) + "<small>t</small>";
+    } else {
+      res.classList.add("pending");
+      sub.textContent = isFinite(c.area) ? fmt(c.area, 2) + " m²" : "";
+      t.textContent = Object.keys(c.missing).length ? "Pick units" : "Enter all values";
+    }
+  }
+
+  function totals(mat) {
+    var m3 = 0, count = 0, area = 0;
+    state[mat].forEach(function (r) {
+      var c = compute(r);
+      if (c.complete) { m3 += c.m3; count++; if (isFinite(c.area)) area += c.area; }
+    });
+    return { m3: m3, t: m3 * MATERIALS[mat].density, count: count, area: area };
+  }
+
+  function updateTotal() {
+    if (state.tab === "calc") return;
+    var t = totals(state.tab);
+    var n = state[state.tab].length;
+    document.getElementById("total-lbl").textContent = MATERIALS[state.tab].name + " total";
+    document.getElementById("total-meta").textContent =
+      t.count + " of " + n + " measurement" + (n === 1 ? "" : "s") + " · " + fmt(t.m3, 3) + " m³";
+    document.getElementById("total-big").innerHTML = fmt(t.t, 2) + "<small>t</small>";
+  }
+
+  // ---------- Events: material rows ----------
+  function findRow(el) {
+    var sec = el.closest(".row");
+    if (!sec) return null;
+    var id = Number(sec.dataset.id);
+    var list = state[state.tab];
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return { r: list[i], i: i, el: sec };
+    return null;
+  }
+  rowsEl.addEventListener("input", onFieldChange);
+  rowsEl.addEventListener("change", onFieldChange);
+  function onFieldChange(e) {
+    var t = e.target, hit = findRow(t);
+    if (!hit) return;
+    var part = t.dataset.part;
+    if (part === "label") hit.r.label = t.value;
+    else if (part === "v") hit.r[t.dataset.f].v = t.value;
+    else if (part === "u") hit.r[t.dataset.f].u = t.value;
+    else return;
+    updateRow(hit.el, hit.r);
+    updateTotal();
+    save();
+  }
+  var armedClear = null;
+  rowsEl.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    var hit = findRow(b);
+    if (!hit) return;
+    if (b.dataset.act === "remove") {
+      var list = state[state.tab];
+      list.splice(hit.i, 1);
+      if (!list.length) list.push(blankRow());
+      renderRows(); save();
+      toast("Measurement removed");
+    } else if (b.dataset.mode) {
+      hit.r.mode = b.dataset.mode;
+      renderRows(); save();
+    }
+  });
+  document.getElementById("add-row").addEventListener("click", function () {
+    var list = state[state.tab];
+    list.push(blankRow(list[list.length - 1]));
+    renderRows(); save();
+    var last = rowsEl.lastElementChild;
+    if (last) {
+      last.scrollIntoView({ behavior: "smooth", block: "center" });
+      var first = last.querySelector(".field input");
+      if (first) setTimeout(function () { first.focus({ preventScroll: true }); }, 250);
+    }
+  });
+  var clearBtn = document.getElementById("clear-rows");
+  clearBtn.addEventListener("click", function () {
+    if (armedClear) {
+      clearTimeout(armedClear); armedClear = null;
+      clearBtn.textContent = "Clear all"; clearBtn.classList.remove("danger-armed");
+      state[state.tab] = [blankRow()];
+      renderRows(); save();
+      toast(MATERIALS[state.tab].name + " measurements cleared");
+      return;
+    }
+    clearBtn.textContent = "Tap again to clear";
+    clearBtn.classList.add("danger-armed");
+    armedClear = setTimeout(function () {
+      armedClear = null;
+      clearBtn.textContent = "Clear all"; clearBtn.classList.remove("danger-armed");
+    }, 3000);
+  });
+
+  // ---------- Copy summary ----------
+  document.getElementById("copy").addEventListener("click", function () {
+    var mat = state.tab, m = MATERIALS[mat];
+    var lines = [m.name + " tonnage (density " + m.density + " t/m³)"];
+    state[mat].forEach(function (r, i) {
+      var c = compute(r);
+      if (!c.complete) return;
+      var desc;
+      if (r.mode === "lw") desc = r.l.v + " " + unitLabel(LEN, r.l.u) + " × " + r.w.v + " " + unitLabel(LEN, r.w.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u);
+      else if (r.mode === "area") desc = r.a.v + " " + unitLabel(AREA, r.a.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u);
+      else desc = r.vol.v + " " + unitLabel(VOL, r.vol.u);
+      lines.push("#" + (i + 1) + (r.label ? " " + r.label : "") + ": " + desc + " = " + fmt(c.m3, 3) + " m³ = " + fmt(c.m3 * m.density, 2) + " t");
+    });
+    var t = totals(mat);
+    lines.push("TOTAL: " + fmt(t.m3, 3) + " m³ = " + fmt(t.t, 2) + " t");
+    var text = lines.join("\n");
+    var done = function () { toast("Summary copied"); };
+    var fail = function () { fallbackCopy(text); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fail);
+      else fail();
+    } catch (e) { fail(); }
+  });
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+    toast(ok ? "Summary copied" : "Copy isn't available here");
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var el = document.getElementById("toast");
+    el.textContent = msg; el.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.hidden = true; }, 1800);
+  }
+
+  // ---------- Tabs ----------
+  var tabs = document.querySelectorAll(".tab");
+  function setTab(tab) {
+    state.tab = tab;
+    tabs.forEach(function (t) { t.setAttribute("aria-selected", String(t.dataset.tab === tab)); });
+    var isCalc = tab === "calc";
+    document.getElementById("panel-material").hidden = isCalc;
+    document.getElementById("panel-calc").hidden = !isCalc;
+    document.getElementById("totalbar").hidden = isCalc;
+    if (!isCalc) {
+      var m = MATERIALS[tab];
+      document.getElementById("mat-title").textContent = m.name + " areas";
+      document.getElementById("mat-density").textContent = m.density + " t/m³";
+      renderRows();
+    } else {
+      updateInserts();
+    }
+    save();
+  }
+  tabs.forEach(function (t) { t.addEventListener("click", function () { setTab(t.dataset.tab); }); });
+
+  // ---------- General calculator ----------
+  var exprEl = document.getElementById("calc-expr");
+  var resEl = document.getElementById("calc-res");
+  var histEl = document.getElementById("history");
+  var expr = "", justEvaluated = false, history = [];
+  var OPS = "+−×÷";
+
+  // Recursive-descent evaluator: + − × ÷, unary minus, postfix %.
+  function evaluate(s) {
+    var i = 0;
+    function peek() { return s[i]; }
+    function parseExpr() {
+      var v = parseTerm();
+      while (peek() === "+" || peek() === "−") {
+        var op = s[i++], r = parseTerm();
+        v = op === "+" ? v + r : v - r;
+      }
+      return v;
+    }
+    function parseTerm() {
+      var v = parseUnary();
+      while (peek() === "×" || peek() === "÷") {
+        var op = s[i++], r = parseUnary();
+        if (op === "÷" && r === 0) throw new Error("Can't divide by 0");
+        v = op === "×" ? v * r : v / r;
+      }
+      return v;
+    }
+    function parseUnary() {
+      if (peek() === "−") { i++; return -parseUnary(); }
+      if (peek() === "+") { i++; return parseUnary(); }
+      return parsePostfix();
+    }
+    function parsePostfix() {
+      var m = /^\d*\.?\d+|^\d+\./.exec(s.slice(i));
+      if (!m) throw new Error("Incomplete");
+      i += m[0].length;
+      var v = parseFloat(m[0]);
+      while (peek() === "%") { i++; v = v / 100; }
+      return v;
+    }
+    var v = parseExpr();
+    if (i !== s.length) throw new Error("Incomplete");
+    return v;
+  }
+  function roundOut(v) {
+    return Number.parseFloat(v.toPrecision(12));
+  }
+  function show() {
+    exprEl.textContent = expr;
+    var trimmed = expr.replace(/[+−×÷]+$/, "");
+    resEl.classList.remove("err");
+    if (!trimmed) { resEl.textContent = "0"; return; }
+    try {
+      var v = evaluate(trimmed);
+      resEl.textContent = fmtCalc(v);
+    } catch (e) {
+      if (e.message === "Can't divide by 0") { resEl.textContent = e.message; resEl.classList.add("err"); }
+    }
+  }
+  function fmtCalc(v) {
+    v = roundOut(v);
+    if (Math.abs(v) >= 1e15 || (Math.abs(v) < 1e-9 && v !== 0)) return v.toExponential(6);
+    return v.toLocaleString(undefined, { maximumFractionDigits: 10 });
+  }
+  function lastNumber() { var m = /(\d*\.?\d*%?)$/.exec(expr); return m ? m[1] : ""; }
+  function press(k) {
+    var last = expr.slice(-1);
+    if (/^\d$/.test(k)) {
+      if (justEvaluated) expr = "";
+      if (last === "%") expr += "×";
+      if (lastNumber() === "0") expr = expr.slice(0, -1);
+      expr += k;
+    } else if (k === ".") {
+      if (justEvaluated) expr = "";
+      var ln = lastNumber();
+      if (ln.indexOf(".") !== -1 || ln.indexOf("%") !== -1) return;
+      expr += ln === "" ? "0." : ".";
+    } else if (OPS.indexOf(k) !== -1) {
+      if (expr === "" && k === "−") { expr = "−"; }
+      else if (expr === "") return;
+      else if (OPS.indexOf(last) !== -1) {
+        // Allow a unary minus after × or ÷ (e.g. 5 × −2); otherwise replace the operator.
+        if (k === "−" && (last === "×" || last === "÷")) expr += k;
+        else expr = expr.replace(/[+−×÷]+$/, "") + k;
+      } else expr += k;
+    } else if (k === "%") {
+      if (/[\d.]$/.test(last)) expr += "%";
+    } else if (k === "AC") {
+      expr = "";
+    } else if (k === "back") {
+      if (justEvaluated) expr = "";
+      else expr = expr.slice(0, -1);
+    } else if (k === "neg") {
+      var m = /(^|[+−×÷])(−?)(\d*\.?\d*%?)$/.exec(expr);
+      if (!m || !m[3]) { if (expr === "" ) expr = "−"; }
+      else {
+        var start = expr.length - m[3].length - m[2].length;
+        expr = expr.slice(0, start) + (m[2] ? "" : "−") + m[3];
+      }
+    } else if (k === "=") {
+      var trimmed = expr.replace(/[+−×÷]+$/, "");
+      if (!trimmed) return;
+      try {
+        var v = roundOut(evaluate(trimmed));
+        history.unshift({ e: trimmed, v: v });
+        history = history.slice(0, 4);
+        renderHistory();
+        expr = String(v).replace("-", "−");
+        if (/e/.test(expr)) expr = String(v.toFixed(10)).replace(/\.?0+$/, "").replace("-", "−");
+        justEvaluated = true;
+        exprEl.textContent = trimmed + " =";
+        resEl.classList.remove("err");
+        resEl.textContent = fmtCalc(v);
+        return;
+      } catch (e) {
+        resEl.textContent = e.message === "Can't divide by 0" ? e.message : "Check the expression";
+        resEl.classList.add("err");
+        return;
+      }
+    }
+    justEvaluated = false;
+    show();
+  }
+  function insertValue(v) {
+    var s = String(roundOut(v));
+    if (justEvaluated || expr === "") expr = "";
+    else if (/[\d.%]$/.test(expr)) expr += "×";
+    expr += s;
+    justEvaluated = false;
+    show();
+  }
+  function renderHistory() {
+    histEl.innerHTML = history.map(function (h, i) {
+      return '<button type="button" data-h="' + i + '">' + esc(h.e) + " = <b>" + fmtCalc(h.v) + "</b></button>";
+    }).join("");
+  }
+  histEl.addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-h]");
+    if (b) insertValue(history[Number(b.dataset.h)].v);
+  });
+  document.getElementById("keys").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-k]");
+    if (b) press(b.dataset.k);
+  });
+  function updateInserts() {
+    ["asphalt", "gravel"].forEach(function (m) {
+      var t = totals(m).t;
+      var b = document.getElementById("ins-" + m);
+      b.innerHTML = '<span class="swatch ' + m + '"></span>' + MATERIALS[m].name + " " + fmt(t, 2) + " t";
+      b.disabled = !(t > 0);
+      b.style.opacity = t > 0 ? "1" : ".5";
+    });
+  }
+  ["asphalt", "gravel"].forEach(function (m) {
+    document.getElementById("ins-" + m).addEventListener("click", function () {
+      insertValue(Number(totals(m).t.toFixed(3)));
+    });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (state.tab !== "calc" || e.metaKey || e.ctrlKey || e.altKey) return;
+    var map = { "*": "×", "x": "×", "/": "÷", "-": "−", "+": "+", "Enter": "=", "=": "=", "Backspace": "back", "Escape": "AC", "%": "%", ".": ".", ",": "." };
+    var k = /^\d$/.test(e.key) ? e.key : map[e.key];
+    if (k) { e.preventDefault(); press(k); }
+  });
+
+  setTab(state.tab === "calc" || state.tab === "gravel" ? state.tab : "asphalt");
+  show();
+})();
+</script>
+</body>
+</html>
