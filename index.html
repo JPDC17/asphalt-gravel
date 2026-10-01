@@ -496,21 +496,56 @@ header.top {
 }
 .inserts .btn { font-size: 15px; min-height: 44px; padding: 0 10px; }
 .history {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  font-size: 14px;
+  gap: 6px;
+}
+.history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.history-head h3 {
+  margin: 0;
+  font: 600 15px/1 var(--display);
+  text-transform: uppercase;
+  letter-spacing: .08em;
   color: var(--muted);
 }
-.history button {
+.history-head .btn { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.history-empty { margin: 0; font-size: 14px; color: var(--muted); }
+.history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.history li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 4px 4px 4px 0;
+}
+.history .reuse {
+  flex: 1;
+  min-width: 0;
   border: 0;
   background: transparent;
   text-align: right;
-  padding: 4px 2px;
+  padding: 8px 4px 8px 12px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 15px;
+  overflow-wrap: anywhere;
 }
-.history button b { color: var(--ink); font-weight: 600; }
+.history .reuse b { color: var(--ink); font-weight: 600; }
+.history .icon-btn { width: 36px; height: 36px; }
 
 .toast {
   position: fixed;
@@ -528,7 +563,11 @@ footer.foot {
   font-size: 13px;
   color: var(--muted);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
+footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -602,11 +641,21 @@ footer.foot {
         <button class="key" data-k=".">.</button>
         <button class="key eq" data-k="=">=</button>
       </div>
-      <div class="history" id="history"></div>
+      <section class="history" aria-label="Calculation history">
+        <div class="history-head">
+          <h3>History</h3>
+          <button class="btn ghost" type="button" id="hist-clear">Clear history</button>
+        </div>
+        <p class="history-empty" id="hist-empty">Calculations you finish with = are saved here. Tap one to reuse its answer, or × to delete it.</p>
+        <ul id="history"></ul>
+      </section>
     </div>
   </main>
 
-  <footer class="foot">Results are estimates. Tonnes = volume (m³) × density. Check local mix specs before ordering.</footer>
+  <footer class="foot">
+    <span>Results are estimates. Tonnes = volume (m³) × density. Check local mix specs before ordering.</span>
+    <span class="ver" id="app-ver">ver. 1.01</span>
+  </footer>
 </div>
 
 <div class="totalbar" id="totalbar">
@@ -944,20 +993,7 @@ footer.foot {
 
   // ---------- Copy summary ----------
   document.getElementById("copy").addEventListener("click", function () {
-    var mat = state.tab, m = MATERIALS[mat];
-    var lines = [m.name + " tonnage (density " + m.density + " t/m³)"];
-    state[mat].forEach(function (r, i) {
-      var c = compute(r);
-      if (!c.complete) return;
-      var desc;
-      if (r.mode === "lw") desc = r.l.v + " " + unitLabel(LEN, r.l.u) + " × " + r.w.v + " " + unitLabel(LEN, r.w.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u);
-      else if (r.mode === "area") desc = r.a.v + " " + unitLabel(AREA, r.a.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u);
-      else desc = r.vol.v + " " + unitLabel(VOL, r.vol.u);
-      lines.push("#" + (i + 1) + (r.label ? " " + r.label : "") + ": " + desc + " = " + fmt(c.m3, 3) + " m³ = " + fmt(c.m3 * m.density, 2) + " t");
-    });
-    var t = totals(mat);
-    lines.push("TOTAL: " + fmt(t.m3, 3) + " m³ = " + fmt(t.t, 2) + " t");
-    var text = lines.join("\n");
+    var text = buildSummary(state.tab);
     var done = function () { toast("Summary copied"); };
     var fail = function () { fallbackCopy(text); };
     try {
@@ -965,6 +1001,39 @@ footer.foot {
       else fail();
     } catch (e) { fail(); }
   });
+  // Plain-text summary laid out to read well when pasted into a text or email.
+  function buildSummary(mat) {
+    var m = MATERIALS[mat];
+    var rule = "------------------------------";
+    var date = new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    var lines = [m.name.toUpperCase() + " TONNAGE ESTIMATE", date, "Density: " + m.density + " t/m³", rule];
+    var skipped = 0, volOnly = 0;
+    state[mat].forEach(function (r, i) {
+      var c = compute(r);
+      if (!c.complete) { skipped++; return; }
+      if (!isFinite(c.area)) volOnly++;
+      var desc;
+      if (r.mode === "lw") desc = r.l.v + " " + unitLabel(LEN, r.l.u) + " × " + r.w.v + " " + unitLabel(LEN, r.w.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u) + " deep";
+      else if (r.mode === "area") desc = r.a.v + " " + unitLabel(AREA, r.a.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u) + " deep";
+      else desc = r.vol.v + " " + unitLabel(VOL, r.vol.u);
+      lines.push("#" + (i + 1) + "  " + (r.label.trim() || "Measurement " + (i + 1)));
+      lines.push("    Size:    " + desc);
+      if (isFinite(c.area)) lines.push("    Area:    " + fmt(c.area, 2) + " m²");
+      lines.push("    Volume:  " + fmt(c.m3, 3) + " m³");
+      lines.push("    Weight:  " + fmt(c.m3 * m.density, 2) + " t");
+      lines.push("");
+    });
+    var t = totals(mat);
+    if (lines[lines.length - 1] === "") lines.pop();
+    if (!t.count) lines.push("No complete measurements yet.");
+    lines.push(rule);
+    lines.push("Measurements: " + t.count);
+    if (t.area > 0) lines.push("Total area:   " + fmt(t.area, 2) + " m²" + (volOnly ? " (not incl. volume-only entries)" : ""));
+    lines.push("Total volume: " + fmt(t.m3, 3) + " m³");
+    lines.push("TOTAL WEIGHT: " + fmt(t.t, 2) + " tonnes");
+    if (skipped) lines.push("(" + skipped + " incomplete measurement" + (skipped === 1 ? "" : "s") + " not included)");
+    return lines.join("\n");
+  }
   function fallbackCopy(text) {
     var ta = document.createElement("textarea");
     ta.value = text; ta.setAttribute("readonly", "");
@@ -1009,7 +1078,17 @@ footer.foot {
   var exprEl = document.getElementById("calc-expr");
   var resEl = document.getElementById("calc-res");
   var histEl = document.getElementById("history");
-  var expr = "", justEvaluated = false, history = [];
+  var HIST_KEY = "tonnage-calc-history-v1";
+  // insertedLen: length of a value just dropped in from a total or history,
+  // so typing a digit next replaces it instead of extending it.
+  var expr = "", justEvaluated = false, insertedLen = 0, history = [];
+  try {
+    var savedHist = JSON.parse(localStorage.getItem(HIST_KEY) || "[]");
+    if (Array.isArray(savedHist)) history = savedHist.filter(function (h) { return h && typeof h.e === "string" && isFinite(h.v); });
+  } catch (e) {}
+  function saveHistory() {
+    try { localStorage.setItem(HIST_KEY, JSON.stringify(history)); } catch (e) {}
+  }
   var OPS = "+−×÷";
 
   // Recursive-descent evaluator: + − × ÷, unary minus, postfix %.
@@ -1071,7 +1150,15 @@ footer.foot {
     return v.toLocaleString(undefined, { maximumFractionDigits: 10 });
   }
   function lastNumber() { var m = /(\d*\.?\d*%?)$/.exec(expr); return m ? m[1] : ""; }
+  // Number → expression text the parser understands (no exponent, "−" sign).
+  function toExpr(v) {
+    var t = String(v);
+    if (/e/.test(t)) t = v.toFixed(10).replace(/\.?0+$/, "");
+    return t.replace("-", "−");
+  }
   function press(k) {
+    if (insertedLen && (/^\d$/.test(k) || k === ".")) expr = expr.slice(0, -insertedLen);
+    insertedLen = 0;
     var last = expr.slice(-1);
     if (/^\d$/.test(k)) {
       if (justEvaluated) expr = "";
@@ -1111,10 +1198,9 @@ footer.foot {
       try {
         var v = roundOut(evaluate(trimmed));
         history.unshift({ e: trimmed, v: v });
-        history = history.slice(0, 4);
-        renderHistory();
-        expr = String(v).replace("-", "−");
-        if (/e/.test(expr)) expr = String(v.toFixed(10)).replace(/\.?0+$/, "").replace("-", "−");
+        history = history.slice(0, 50);
+        renderHistory(); saveHistory();
+        expr = toExpr(v);
         justEvaluated = true;
         exprEl.textContent = trimmed + " =";
         resEl.classList.remove("err");
@@ -1130,22 +1216,53 @@ footer.foot {
     show();
   }
   function insertValue(v) {
-    var s = String(roundOut(v));
+    var s = toExpr(roundOut(v));
+    if (insertedLen) expr = expr.slice(0, -insertedLen);
+    insertedLen = 0;
     if (justEvaluated || expr === "") expr = "";
     else if (/[\d.%]$/.test(expr)) expr += "×";
     expr += s;
+    insertedLen = s.length;
     justEvaluated = false;
     show();
   }
+  var histClear = document.getElementById("hist-clear"), histArmed = null;
   function renderHistory() {
     histEl.innerHTML = history.map(function (h, i) {
-      return '<button type="button" data-h="' + i + '">' + esc(h.e) + " = <b>" + fmtCalc(h.v) + "</b></button>";
+      return '<li><button class="reuse" type="button" data-h="' + i + '" aria-label="Use ' + fmtCalc(h.v) + '">' + esc(h.e) + " = <b>" + fmtCalc(h.v) + "</b></button>" +
+        '<button class="icon-btn" type="button" data-del="' + i + '" aria-label="Delete this calculation">' + ICON_X + "</button></li>";
     }).join("");
+    document.getElementById("hist-empty").hidden = history.length > 0;
+    histClear.hidden = history.length === 0;
   }
   histEl.addEventListener("click", function (e) {
+    var del = e.target.closest("button[data-del]");
+    if (del) {
+      history.splice(Number(del.dataset.del), 1);
+      renderHistory(); saveHistory();
+      toast("Calculation deleted");
+      return;
+    }
     var b = e.target.closest("button[data-h]");
     if (b) insertValue(history[Number(b.dataset.h)].v);
   });
+  function disarmHistClear() {
+    clearTimeout(histArmed); histArmed = null;
+    histClear.textContent = "Clear history"; histClear.classList.remove("danger-armed");
+  }
+  histClear.addEventListener("click", function () {
+    if (histArmed) {
+      disarmHistClear();
+      history = [];
+      renderHistory(); saveHistory();
+      toast("History cleared");
+      return;
+    }
+    histClear.textContent = "Tap again to clear";
+    histClear.classList.add("danger-armed");
+    histArmed = setTimeout(disarmHistClear, 3000);
+  });
+  renderHistory();
   document.getElementById("keys").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-k]");
     if (b) press(b.dataset.k);
