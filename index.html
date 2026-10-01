@@ -29,6 +29,7 @@
   --err-bg: #FDE7E5;
   --asphalt: #2B3036;
   --gravel: #A89A85;
+  --concrete: #C3C7C9;
   --key: #FFFFFF;
   --key-op: #DDE2E6;
   --shadow: 0 1px 2px rgba(20, 26, 32, .06), 0 4px 16px rgba(20, 26, 32, .06);
@@ -53,6 +54,7 @@
     --err-bg: #3D1C1A;
     --asphalt: #0E1012;
     --gravel: #8C806E;
+    --concrete: #8F9598;
     --key: #262C31;
     --key-op: #323940;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
@@ -75,6 +77,7 @@
   --err-bg: #3D1C1A;
   --asphalt: #0E1012;
   --gravel: #8C806E;
+  --concrete: #8F9598;
   --key: #262C31;
   --key-op: #323940;
   --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
@@ -135,7 +138,7 @@ header.top {
 }
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -181,6 +184,15 @@ header.top {
     radial-gradient(circle at 70% 45%, #6f6453 0 2px, transparent 2.5px),
     radial-gradient(circle at 35% 75%, #c4b8a5 0 1.8px, transparent 2.3px),
     radial-gradient(circle at 78% 82%, #5c5243 0 1.5px, transparent 2px);
+}
+
+.swatch.concrete {
+  background-color: var(--concrete);
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(0,0,0,.28) 0 .8px, transparent 1.2px),
+    radial-gradient(circle at 70% 25%, rgba(0,0,0,.2) 0 .7px, transparent 1.1px),
+    radial-gradient(circle at 55% 70%, rgba(0,0,0,.25) 0 .9px, transparent 1.3px),
+    radial-gradient(circle at 20% 80%, rgba(255,255,255,.5) 0 .8px, transparent 1.2px);
 }
 
 /* Material panel */
@@ -323,6 +335,65 @@ header.top {
   border-color: var(--err);
   background: var(--err-bg);
 }
+.field.stack { grid-template-columns: 1fr 96px; row-gap: 4px; }
+.field.stack > label { grid-column: 1 / -1; }
+.field.stack .conv { grid-column: 1 / -1; margin-top: 0; }
+.elem { display: flex; flex-direction: column; gap: 4px; }
+.elem label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.elem select {
+  height: 48px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface-2);
+  padding: 0 10px;
+  font-size: 17px;
+  font-weight: 600;
+  width: 100%;
+}
+.diagram {
+  margin: 0;
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+}
+.diagram svg { width: 100%; max-width: 320px; height: auto; display: block; }
+.diagram .shape { fill: var(--concrete); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+.diagram .dim { fill: none; stroke: var(--muted); stroke-width: 1; }
+.diagram text { fill: var(--ink); font: 600 11px var(--body); }
+.mode-note { margin: 0; font-size: 13px; color: var(--muted); }
+.waste {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 12px;
+}
+.waste > label { font-weight: 600; }
+.waste-in { display: flex; align-items: center; gap: 6px; }
+.waste-in input {
+  width: 80px;
+  height: 44px;
+  border: 1.5px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  padding: 0 10px;
+  font-size: 17px;
+  text-align: right;
+}
+.waste-in span { font-weight: 600; color: var(--muted); }
+.waste-help, .waste-note { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--muted); }
+.waste-note { color: var(--warn); background: var(--warn-bg); border-radius: 8px; padding: 6px 10px; }
 .field .conv {
   grid-column: 2 / 4;
   font-size: 13px;
@@ -491,7 +562,7 @@ header.top {
 .key.fn { font-size: 20px; color: var(--muted); }
 .inserts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
   gap: 8px;
 }
 .inserts .btn { font-size: 15px; min-height: 44px; padding: 0 10px; }
@@ -571,10 +642,16 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+@media (max-width: 440px) {
+  .tab { font-size: 15px; letter-spacing: .02em; gap: 0; padding: 10px 2px; }
+  .tab .swatch { display: none; }
+}
 @media (max-width: 360px) {
   .field { grid-template-columns: 56px 1fr 84px; gap: 6px; }
+  .field.stack { grid-template-columns: 1fr 84px; }
   .field > label { font-size: 12px; letter-spacing: .02em; }
-  .tab { font-size: 15px; gap: 5px; letter-spacing: .02em; }
+  .tab { font-size: 13px; letter-spacing: 0; padding: 10px 1px; }
+  .tabs { gap: 2px; padding: 3px; }
   .row { padding: 10px; }
   .totalbar .big { font-size: 30px; }
 }
@@ -585,11 +662,12 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
   <header class="top">
     <div class="brand">
       <h1>Tonnage Calc</h1>
-      <small>Metric tonnes</small>
+      <small>Metric results</small>
     </div>
     <nav class="tabs" role="tablist" aria-label="Calculator type">
       <button class="tab" role="tab" id="tab-asphalt" data-tab="asphalt" aria-selected="true"><span class="swatch asphalt"></span>Asphalt</button>
       <button class="tab" role="tab" id="tab-gravel" data-tab="gravel" aria-selected="false"><span class="swatch gravel"></span>Gravel</button>
+      <button class="tab" role="tab" id="tab-concrete" data-tab="concrete" aria-selected="false"><span class="swatch concrete"></span>Concrete</button>
       <button class="tab" role="tab" id="tab-calc" data-tab="calc" aria-selected="false">Calc</button>
     </nav>
   </header>
@@ -598,9 +676,18 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     <div style="display:flex;flex-direction:column;gap:12px">
       <div class="material-head">
         <h2 id="mat-title">Asphalt areas</h2>
-        <span class="density">Density <b id="mat-density">2.5 t/m³</b></span>
+        <span class="density" id="mat-density">Density <b>2.5 t/m³</b></span>
       </div>
-      <p class="hint">Enter each area you're paving or filling. Pick a unit for every number. The converted metric value shows under each entry so you can check it.</p>
+      <p class="hint" id="mat-hint">Enter each area you're paving or filling. Pick a unit for every number. The converted metric value shows under each entry so you can check it.</p>
+      <div class="waste" id="waste-box" hidden>
+        <label for="concrete-waste">Overage for ordering</label>
+        <div class="waste-in">
+          <input id="concrete-waste" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+          <span>%</span>
+        </div>
+        <p class="waste-help">Added to the total only. Leave blank for the exact volume.</p>
+        <p class="waste-note" id="waste-note" hidden></p>
+      </div>
       <div class="rows" id="rows"></div>
       <div class="actions">
         <button class="btn primary" id="add-row" type="button">+ Add measurement</button>
@@ -618,6 +705,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
       <div class="inserts">
         <button class="btn" type="button" id="ins-asphalt"><span class="swatch asphalt"></span>Asphalt total</button>
         <button class="btn" type="button" id="ins-gravel"><span class="swatch gravel"></span>Gravel total</button>
+        <button class="btn" type="button" id="ins-concrete"><span class="swatch concrete"></span>Concrete total</button>
       </div>
       <div class="keys" id="keys">
         <button class="key fn" data-k="AC">AC</button>
@@ -653,8 +741,8 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
   </main>
 
   <footer class="foot">
-    <span>Results are estimates. Tonnes = volume (m³) × density. Check local mix specs before ordering.</span>
-    <span class="ver" id="app-ver">ver. 1.01</span>
+    <span>Results are estimates. Asphalt and gravel: tonnes = volume (m³) × density. Concrete is shown in m³. Check specs before ordering.</span>
+    <span class="ver" id="app-ver">ver. 1.02</span>
   </footer>
 </div>
 
@@ -687,10 +775,16 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     metric: [["m2", "m²", 1], ["ha", "ha", 10000]],
     imperial: [["ft2", "ft²", 0.09290304], ["yd2", "yd²", 0.83612736], ["ac", "acre", 4046.8564224]]
   };
+  // Cross-section areas of curbs and other profiles.
+  var SECTION = {
+    metric: [["m2", "m²", 1], ["cm2", "cm²", 0.0001]],
+    imperial: [["ft2", "ft²", 0.09290304], ["in2", "in²", 0.00064516]]
+  };
   var VOL = {
     metric: [["m3", "m³", 1]],
     imperial: [["yd3", "yd³", 0.764554857984], ["ft3", "ft³", 0.028316846592]]
   };
+  var M3_PER_YD3 = 0.764554857984;
   function factor(table, u) {
     var all = table.metric.concat(table.imperial);
     for (var i = 0; i < all.length; i++) if (all[i][0] === u) return all[i][2];
@@ -702,39 +796,63 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     return u;
   }
 
+  // Each way of measuring: its button/menu label and the fields it needs.
+  var MODES = {
+    lw: { label: "L × W × D", fields: [["l", "Length", LEN], ["w", "Width", LEN], ["d", "Depth", DEPTH]] },
+    area: { label: "Area × Depth", fields: [["a", "Area", AREA], ["d", "Depth", DEPTH]] },
+    vol: { label: "Volume", fields: [["vol", "Volume", VOL]] },
+    sidewalk: { label: "Sidewalk", fields: [["l", "Length", LEN], ["w", "Width", LEN], ["d", "Thickness", DEPTH]] },
+    slab: { label: "Slab on grade", fields: [["l", "Length", LEN], ["w", "Width", LEN], ["d", "Thickness", DEPTH]] },
+    barrier: { label: "Barrier curb", fields: [["l", "Length", LEN], ["h", "Height", DEPTH], ["tw", "Top width", DEPTH], ["bw", "Base width", DEPTH]] },
+    cg: { label: "Curb & gutter", fields: [["l", "Length", LEN], ["ch", "Curb height", DEPTH], ["cw", "Curb width", DEPTH], ["gw", "Gutter width", DEPTH], ["gt", "Gutter thickness", DEPTH]] },
+    section: { label: "Other curb profile", fields: [["l", "Length", LEN], ["sec", "Section area", SECTION]] }
+  };
+  var ALL_KEYS = ["l", "w", "d", "a", "vol", "h", "tw", "bw", "ch", "cw", "gw", "gt", "sec"];
+  var FLAT_MODES = { lw: 1, area: 1, sidewalk: 1, slab: 1 };
+
   var MATERIALS = {
-    asphalt: { name: "Asphalt", density: 2.5 },
-    gravel: { name: "Gravel", density: 2.2 }
+    asphalt: { name: "Asphalt", density: 2.5, modes: ["lw", "area", "vol"], placeholder: "Name (e.g. Driveway)" },
+    gravel: { name: "Gravel", density: 2.2, modes: ["lw", "area", "vol"], placeholder: "Name (e.g. Driveway base)" },
+    concrete: { name: "Concrete", density: null, modes: ["sidewalk", "slab", "barrier", "cg", "section", "vol"], placeholder: "Name (e.g. Main St sidewalk)" }
+  };
+  var HINTS = {
+    asphalt: "Enter each area you're paving or filling. Pick a unit for every number. The converted metric value shows under each entry so you can check it.",
+    gravel: "Enter each area you're paving or filling. Pick a unit for every number. The converted metric value shows under each entry so you can check it.",
+    concrete: "Pick the element type for each pour, then enter its dimensions. Pick a unit for every number. Results are in cubic metres (m³)."
   };
 
   // ---------- State ----------
   var KEY = "tonnage-calc-v1";
   var uid = 0;
-  function blankRow(prev) {
-    var r = {
-      id: ++uid, label: "", mode: "lw",
-      l: { v: "", u: "" }, w: { v: "", u: "" }, d: { v: "", u: "" },
-      a: { v: "", u: "" }, vol: { v: "", u: "" }
-    };
+  function ensureKeys(r) {
+    ALL_KEYS.forEach(function (k) { if (!r[k]) r[k] = { v: "", u: "" }; });
+    return r;
+  }
+  function blankRow(mat, prev) {
+    var r = ensureKeys({ id: ++uid, label: "", mode: MATERIALS[mat].modes[0] });
     // Carry units from the previous row so repeat entries are quicker,
     // but the first row always starts with no unit chosen.
     if (prev) {
       r.mode = prev.mode;
-      ["l", "w", "d", "a", "vol"].forEach(function (k) { r[k].u = prev[k].u; });
+      ALL_KEYS.forEach(function (k) { r[k].u = prev[k].u; });
     }
     return r;
   }
-  var state = { tab: "asphalt", asphalt: [blankRow()], gravel: [blankRow()] };
+  var state = { tab: "asphalt", asphalt: [blankRow("asphalt")], gravel: [blankRow("gravel")], concrete: [blankRow("concrete")], concreteWaste: "" };
   try {
     var saved = JSON.parse(localStorage.getItem(KEY) || "null");
     if (saved && saved.asphalt && saved.gravel) {
+      if (!Array.isArray(saved.concrete)) saved.concrete = [];
+      if (typeof saved.concreteWaste !== "string") saved.concreteWaste = "";
       state = saved;
-      [].concat(state.asphalt, state.gravel).forEach(function (r) {
-        r.id = ++uid;
-        if (!r.vol) r.vol = { v: "", u: "" };
+      Object.keys(MATERIALS).forEach(function (mat) {
+        state[mat].forEach(function (r) {
+          r.id = ++uid;
+          ensureKeys(r);
+          if (MATERIALS[mat].modes.indexOf(r.mode) === -1) r.mode = MATERIALS[mat].modes[0];
+        });
+        if (!state[mat].length) state[mat].push(blankRow(mat));
       });
-      if (!state.asphalt.length) state.asphalt.push(blankRow());
-      if (!state.gravel.length) state.gravel.push(blankRow());
     }
   } catch (e) {}
   function save() {
@@ -764,55 +882,118 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     var dp = a === 0 ? 0 : a < 0.1 ? 4 : a < 10 ? 3 : 2;
     return n.toLocaleString(undefined, { maximumFractionDigits: dp });
   }
+  function allFinite() {
+    for (var i = 0; i < arguments.length; i++) if (!isFinite(arguments[i])) return false;
+    return true;
+  }
 
   // ---------- Row maths ----------
-  // Returns { m3, area, notes[], missingUnit: {key:true}, complete }
+  // Returns { m3, area, section, notes[], missing{}, bad{}, conv{}, complete }.
+  // All dimensions are converted to metres before any maths.
   function compute(r) {
-    var out = { m3: NaN, area: NaN, notes: [], missing: {}, bad: {}, conv: {}, complete: false };
-    function val(key, table) {
-      var f = r[key];
-      if (String(f.v).trim() === "") return NaN;
-      var n = num(f.v);
+    var out = { m3: NaN, area: NaN, section: NaN, notes: [], missing: {}, bad: {}, conv: {}, complete: false };
+    var spec = MODES[r.mode] || MODES.lw;
+    var v = {};
+    spec.fields.forEach(function (f) {
+      var key = f[0], label = f[1], table = f[2], cell = r[key];
+      v[key] = NaN;
+      if (String(cell.v).trim() === "") return;
+      var n = num(cell.v);
       if (isNaN(n)) {
-        out.bad[key] = /^\s*-/.test(f.v) ? "Use a positive number" : "Enter a number, e.g. 12.5";
-        return NaN;
+        out.bad[key] = /^\s*-/.test(cell.v) ? "Use a positive number" : "Enter a number, e.g. 12.5";
+        return;
       }
-      if (!f.u) { out.missing[key] = true; return NaN; }
-      var m = n * factor(table, f.u);
-      return m;
+      if (!cell.u) { out.missing[key] = true; return; }
+      var m = n * factor(table, cell.u);
+      v[key] = m;
+      if (table === LEN) out.conv[key] = "= " + fmtSmart(m) + " m";
+      else if (table === DEPTH) out.conv[key] = "= " + fmtSmart(m * 1000) + " mm (" + fmtSmart(m) + " m)";
+      else if (table === AREA || table === SECTION) out.conv[key] = "= " + fmtSmart(m) + " m²";
+      else out.conv[key] = "= " + fmtSmart(m) + " m³";
+      checkValue(key, label, m, out);
+    });
+
+    switch (r.mode) {
+      case "lw": case "sidewalk": case "slab":
+        if (allFinite(v.l, v.w)) out.area = v.l * v.w;
+        if (allFinite(v.l, v.w, v.d)) out.m3 = v.l * v.w * v.d;
+        break;
+      case "area":
+        if (isFinite(v.a)) out.area = v.a;
+        if (allFinite(v.a, v.d)) out.m3 = v.a * v.d;
+        break;
+      case "barrier":
+        // Trapezoid: average of top and base width × height.
+        if (allFinite(v.h, v.tw, v.bw)) out.section = (v.tw + v.bw) / 2 * v.h;
+        break;
+      case "cg":
+        // Curb block (full height) plus the gutter pan in front of it.
+        if (allFinite(v.ch, v.cw, v.gw, v.gt)) {
+          out.section = v.cw * v.ch + v.gw * v.gt;
+          if (v.gt > v.ch) out.notes.push("<b>Gutter is thicker than the curb is tall.</b> Check the values.");
+        }
+        break;
+      case "section":
+        if (isFinite(v.sec)) out.section = v.sec;
+        break;
+      default:
+        if (isFinite(v.vol)) out.m3 = v.vol;
     }
-    if (r.mode === "lw") {
-      var L = val("l", LEN), W = val("w", LEN), D = val("d", DEPTH);
-      if (isFinite(L)) out.conv.l = "= " + fmtSmart(L) + " m";
-      if (isFinite(W)) out.conv.w = "= " + fmtSmart(W) + " m";
-      if (isFinite(D)) out.conv.d = "= " + fmtSmart(D * 1000) + " mm (" + fmtSmart(D) + " m)";
-      [["l", L, "Length"], ["w", W, "Width"]].forEach(function (x) {
-        if (!isFinite(x[1])) return;
-        if (x[1] > 0 && x[1] < 0.3) out.notes.push("<b>" + x[2] + " is only " + fmtSmart(x[1] * 100) + " cm.</b> Check the unit.");
-        if (x[1] > 3000) out.notes.push("<b>" + x[2] + " is " + fmtSmart(x[1] / 1000) + " km.</b> Check the unit.");
-      });
-      checkDepth(D, out);
-      if (isFinite(L) && isFinite(W)) out.area = L * W;
-      if (isFinite(L) && isFinite(W) && isFinite(D)) { out.m3 = L * W * D; out.complete = true; }
-    } else if (r.mode === "area") {
-      var A = val("a", AREA), D2 = val("d", DEPTH);
-      if (isFinite(A)) out.conv.a = "= " + fmtSmart(A) + " m²";
-      if (isFinite(D2)) out.conv.d = "= " + fmtSmart(D2 * 1000) + " mm (" + fmtSmart(D2) + " m)";
-      if (isFinite(A) && A > 0 && A < 0.5) out.notes.push("<b>Area is only " + fmtSmart(A) + " m².</b> Check the unit.");
-      checkDepth(D2, out);
-      if (isFinite(A)) out.area = A;
-      if (isFinite(A) && isFinite(D2)) { out.m3 = A * D2; out.complete = true; }
-    } else {
-      var V = val("vol", VOL);
-      if (isFinite(V)) { out.conv.vol = "= " + fmtSmart(V) + " m³"; out.m3 = V; out.complete = true; }
-    }
+    if (isFinite(out.section) && isFinite(v.l)) out.m3 = v.l * out.section;
+    out.complete = isFinite(out.m3);
     return out;
   }
-  function checkDepth(D, out) {
-    if (!isFinite(D) || D <= 0) return;
-    if (D < 0.01) out.notes.push("<b>Depth is only " + fmtSmart(D * 1000) + " mm.</b> Check the unit.");
-    else if (D > 0.6) out.notes.push("<b>Depth is " + fmtSmart(D) + " m (" + fmtSmart(D / 0.3048) + " ft).</b> That's very deep. Did you mean mm or in?");
+  function checkValue(key, label, m, out) {
+    if (!(m > 0)) return;
+    if (key === "l" || key === "w") {
+      if (m < 0.3) out.notes.push("<b>" + label + " is only " + fmtSmart(m * 100) + " cm.</b> Check the unit.");
+      if (m > 3000) out.notes.push("<b>" + label + " is " + fmtSmart(m / 1000) + " km.</b> Check the unit.");
+    } else if (key === "d") {
+      if (m < 0.01) out.notes.push("<b>" + label + " is only " + fmtSmart(m * 1000) + " mm.</b> Check the unit.");
+      else if (m > 0.6) out.notes.push("<b>" + label + " is " + fmtSmart(m) + " m (" + fmtSmart(m / 0.3048) + " ft).</b> That's very deep. Did you mean mm or in?");
+    } else if (key === "a") {
+      if (m < 0.5) out.notes.push("<b>Area is only " + fmtSmart(m) + " m².</b> Check the unit.");
+    } else if (key === "sec") {
+      if (m < 0.0005) out.notes.push("<b>Section area is only " + fmtSmart(m * 10000) + " cm².</b> Check the unit.");
+      else if (m > 2) out.notes.push("<b>Section area is " + fmtSmart(m) + " m².</b> That's very large for a curb. Check the unit.");
+    } else if (key !== "vol") {
+      // Curb dimensions.
+      if (m < 0.01) out.notes.push("<b>" + label + " is only " + fmtSmart(m * 1000) + " mm.</b> Check the unit.");
+      else if (m > 1.5) out.notes.push("<b>" + label + " is " + fmtSmart(m) + " m.</b> That's very large for a curb. Did you mean mm or in?");
+    }
   }
+
+  // ---------- Cross-section diagrams ----------
+  function dimH(x1, x2, y, text, ty) {
+    return '<path d="M' + x1 + " " + y + "H" + x2 + "M" + x1 + " " + (y - 4) + "v8M" + x2 + " " + (y - 4) + 'v8" class="dim"/>' +
+      '<text x="' + (x1 + x2) / 2 + '" y="' + ty + '" text-anchor="middle">' + text + "</text>";
+  }
+  function dimV(x, y1, y2, text, tx, ty, anchor) {
+    return '<path d="M' + x + " " + y1 + "V" + y2 + "M" + (x - 4) + " " + y1 + "h8M" + (x - 4) + " " + y2 + 'h8" class="dim"/>' +
+      '<text x="' + tx + '" y="' + ty + '" text-anchor="' + (anchor || "end") + '">' + text + "</text>";
+  }
+  var DIAGRAMS = {
+    barrier:
+      '<svg viewBox="-24 0 324 132" role="img" aria-label="Barrier curb cross-section: top width, height and base width">' +
+      '<polygon points="110,100 110,30 150,30 172,100" class="shape"/>' +
+      dimH(110, 150, 20, "Top width", 12) +
+      dimV(96, 30, 100, "Height", 88, 69) +
+      dimH(110, 172, 112, "Base width", 128) +
+      "</svg>",
+    cg:
+      '<svg viewBox="-24 0 324 132" role="img" aria-label="Curb and gutter cross-section: curb width and height, gutter width and thickness">' +
+      '<polygon points="90,100 90,30 120,30 120,80 240,80 240,100" class="shape"/>' +
+      dimH(90, 120, 20, "Curb width", 12) +
+      dimV(76, 30, 100, "Curb height", 68, 69) +
+      dimH(120, 240, 68, "Gutter width", 60) +
+      dimV(254, 80, 100, "Gutter thickness", 280, 120) +
+      "</svg>"
+  };
+  var MODE_NOTES = {
+    barrier: "Volume = length × (top width + base width) ÷ 2 × height.",
+    cg: "Curb height is measured from the bottom of the base to the top of the curb. Gutter width is from the curb face to the gutter lip.",
+    section: "Use the cross-section area from the standard drawing for the curb profile."
+  };
 
   // ---------- Rendering ----------
   var rowsEl = document.getElementById("rows");
@@ -828,9 +1009,11 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     h += "</optgroup></select>";
     return h;
   }
-  function field(r, key, label, table, idBase) {
+  function field(r, key, label, table, idBase, stack) {
     var id = idBase + "-" + key;
-    return '<div class="field" data-field="' + key + '">' +
+    // A unit carried over from another element type may not exist in this table.
+    if (r[key].u && factor(table, r[key].u) === null) r[key].u = "";
+    return '<div class="field' + (stack ? " stack" : "") + '" data-field="' + key + '">' +
       '<label for="' + id + '">' + label + "</label>" +
       '<input id="' + id + '" data-f="' + key + '" data-part="v" type="text" inputmode="decimal" autocomplete="off" placeholder="0" value="' + esc(r[key].v) + '">' +
       unitSelect(table, key, r[key].u, id) +
@@ -841,33 +1024,37 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
   }
 
   function renderRows() {
-    var mat = state.tab;
+    var mat = state.tab, M = MATERIALS[mat];
     var list = state[mat];
+    var isConcrete = mat === "concrete";
     rowsEl.innerHTML = "";
     list.forEach(function (r, i) {
       var idBase = mat + "-r" + r.id;
       var el = document.createElement("section");
       el.className = "row";
       el.dataset.id = r.id;
-      var fields = "";
-      if (r.mode === "lw") {
-        fields = field(r, "l", "Length", LEN, idBase) + field(r, "w", "Width", LEN, idBase) + field(r, "d", "Depth", DEPTH, idBase);
-      } else if (r.mode === "area") {
-        fields = field(r, "a", "Area", AREA, idBase) + field(r, "d", "Depth", DEPTH, idBase);
+      var spec = MODES[r.mode];
+      var fields = spec.fields.map(function (f) { return field(r, f[0], f[1], f[2], idBase, isConcrete); }).join("");
+      var picker;
+      if (isConcrete) {
+        picker = '<div class="elem"><label for="' + idBase + '-mode">Element</label>' +
+          '<select id="' + idBase + '-mode" data-part="mode">' +
+          M.modes.map(function (m) { return '<option value="' + m + '"' + (r.mode === m ? " selected" : "") + ">" + MODES[m].label + "</option>"; }).join("") +
+          "</select></div>";
+        if (DIAGRAMS[r.mode]) picker += '<figure class="diagram">' + DIAGRAMS[r.mode] + "</figure>";
+        if (MODE_NOTES[r.mode]) picker += '<p class="mode-note">' + MODE_NOTES[r.mode] + "</p>";
       } else {
-        fields = field(r, "vol", "Volume", VOL, idBase);
+        picker = '<div class="seg" role="group" aria-label="Measure by">' +
+          M.modes.map(function (m) { return '<button type="button" data-mode="' + m + '" aria-pressed="' + (r.mode === m) + '">' + MODES[m].label + "</button>"; }).join("") +
+          "</div>";
       }
       el.innerHTML =
         '<div class="row-top">' +
           '<span class="row-num">#' + (i + 1) + "</span>" +
-          '<input class="row-label" id="' + idBase + '-label" data-part="label" type="text" placeholder="Name (e.g. Driveway)" value="' + esc(r.label) + '" aria-label="Area name">' +
+          '<input class="row-label" id="' + idBase + '-label" data-part="label" type="text" placeholder="' + M.placeholder + '" value="' + esc(r.label) + '" aria-label="Name">' +
           '<button class="icon-btn" type="button" data-act="remove" aria-label="Remove measurement ' + (i + 1) + '">' + ICON_X + "</button>" +
         "</div>" +
-        '<div class="seg" role="group" aria-label="Measure by">' +
-          '<button type="button" data-mode="lw" aria-pressed="' + (r.mode === "lw") + '">L × W × D</button>' +
-          '<button type="button" data-mode="area" aria-pressed="' + (r.mode === "area") + '">Area × Depth</button>' +
-          '<button type="button" data-mode="vol" aria-pressed="' + (r.mode === "vol") + '">Volume</button>' +
-        "</div>" +
+        picker +
         fields +
         '<div class="notes"></div>' +
         '<div class="row-result pending"><span class="sub"></span><span class="t"></span></div>';
@@ -879,6 +1066,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
 
   function updateRow(el, r) {
     var c = compute(r);
+    var M = MATERIALS[state.tab];
     el.querySelectorAll(".field").forEach(function (f) {
       var key = f.dataset.field;
       var sel = f.querySelector("select");
@@ -891,35 +1079,64 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     el.querySelector(".notes").innerHTML = c.notes.map(function (n) { return '<div class="note">' + n + "</div>"; }).join("");
     var res = el.querySelector(".row-result");
     var sub = res.querySelector(".sub"), t = res.querySelector(".t");
+    var parts = [];
+    if (isFinite(c.area)) parts.push(fmt(c.area, 2) + " m²");
+    if (isFinite(c.section)) parts.push("Section " + fmt(c.section, 4) + " m²");
     if (c.complete) {
-      var tonnes = c.m3 * MATERIALS[state.tab].density;
       res.classList.remove("pending");
-      sub.textContent = (isFinite(c.area) ? fmt(c.area, 2) + " m² · " : "") + fmt(c.m3, 3) + " m³";
-      t.innerHTML = fmt(tonnes, 2) + "<small>t</small>";
+      if (M.density) {
+        parts.push(fmt(c.m3, 3) + " m³");
+        t.innerHTML = fmt(c.m3 * M.density, 2) + "<small>t</small>";
+      } else {
+        parts.push(fmt(c.m3 / M3_PER_YD3, 2) + " yd³");
+        t.innerHTML = fmt(c.m3, 2) + "<small>m³</small>";
+      }
     } else {
       res.classList.add("pending");
-      sub.textContent = isFinite(c.area) ? fmt(c.area, 2) + " m²" : "";
       t.textContent = Object.keys(c.bad).length ? "Fix the number" : Object.keys(c.missing).length ? "Pick units" : "Enter all values";
     }
+    sub.textContent = parts.join(" · ");
   }
 
+  // Overage % for concrete orders. Blank means 0.
+  function wastePct() {
+    var w = num(state.concreteWaste);
+    return isFinite(w) && w <= 100 ? w : 0;
+  }
   function totals(mat) {
     var m3 = 0, count = 0, area = 0;
     state[mat].forEach(function (r) {
       var c = compute(r);
       if (c.complete) { m3 += c.m3; count++; if (isFinite(c.area)) area += c.area; }
     });
-    return { m3: m3, t: m3 * MATERIALS[mat].density, count: count, area: area };
+    var M = MATERIALS[mat];
+    var waste = mat === "concrete" ? wastePct() : 0;
+    var order = m3 * (1 + waste / 100);
+    return { m3: m3, t: M.density ? m3 * M.density : NaN, order: order, waste: waste, count: count, area: area };
+  }
+  // The headline number for a material: tonnes, or m³ to order for concrete.
+  function headline(mat) {
+    var t = totals(mat);
+    return MATERIALS[mat].density ? t.t : t.order;
   }
 
   function updateTotal() {
     if (state.tab === "calc") return;
-    var t = totals(state.tab);
-    var n = state[state.tab].length;
-    document.getElementById("total-lbl").textContent = MATERIALS[state.tab].name + " total";
-    document.getElementById("total-meta").textContent =
-      t.count + " of " + n + " measurement" + (n === 1 ? "" : "s") + " · " + fmt(t.m3, 3) + " m³";
-    document.getElementById("total-big").innerHTML = fmt(t.t, 2) + "<small>t</small>";
+    var mat = state.tab, M = MATERIALS[mat];
+    var t = totals(mat);
+    var n = state[mat].length;
+    var meta = t.count + " of " + n + " measurement" + (n === 1 ? "" : "s");
+    if (M.density) {
+      document.getElementById("total-lbl").textContent = M.name + " total";
+      meta += " · " + fmt(t.m3, 3) + " m³";
+      document.getElementById("total-big").innerHTML = fmt(t.t, 2) + "<small>t</small>";
+    } else {
+      document.getElementById("total-lbl").textContent = t.waste ? "Concrete to order" : "Concrete total";
+      if (t.waste) meta += " · net " + fmt(t.m3, 2) + " m³ + " + fmtSmart(t.waste) + "%";
+      meta += " · " + fmt(t.order / M3_PER_YD3, 2) + " yd³";
+      document.getElementById("total-big").innerHTML = fmt(t.order, 2) + "<small>m³</small>";
+    }
+    document.getElementById("total-meta").textContent = meta;
   }
 
   // ---------- Events: material rows ----------
@@ -937,6 +1154,12 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     var t = e.target, hit = findRow(t);
     if (!hit) return;
     var part = t.dataset.part;
+    if (part === "mode") {
+      if (e.type !== "change" || hit.r.mode === t.value) return;
+      hit.r.mode = t.value;
+      renderRows(); save();
+      return;
+    }
     if (part === "label") hit.r.label = t.value;
     else if (part === "v") hit.r[t.dataset.f].v = t.value;
     else if (part === "u") hit.r[t.dataset.f].u = t.value;
@@ -954,7 +1177,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     if (b.dataset.act === "remove") {
       var list = state[state.tab];
       list.splice(hit.i, 1);
-      if (!list.length) list.push(blankRow());
+      if (!list.length) list.push(blankRow(state.tab));
       renderRows(); save();
       toast("Measurement removed");
     } else if (b.dataset.mode) {
@@ -964,7 +1187,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
   });
   document.getElementById("add-row").addEventListener("click", function () {
     var list = state[state.tab];
-    list.push(blankRow(list[list.length - 1]));
+    list.push(blankRow(state.tab, list[list.length - 1]));
     renderRows(); save();
     var last = rowsEl.lastElementChild;
     if (last) {
@@ -978,7 +1201,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     if (armedClear) {
       clearTimeout(armedClear); armedClear = null;
       clearBtn.textContent = "Clear all"; clearBtn.classList.remove("danger-armed");
-      state[state.tab] = [blankRow()];
+      state[state.tab] = [blankRow(state.tab)];
       renderRows(); save();
       toast(MATERIALS[state.tab].name + " measurements cleared");
       return;
@@ -990,6 +1213,21 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
       clearBtn.textContent = "Clear all"; clearBtn.classList.remove("danger-armed");
     }, 3000);
   });
+  var wasteEl = document.getElementById("concrete-waste");
+  wasteEl.value = state.concreteWaste;
+  function updateWasteNote() {
+    var raw = state.concreteWaste.trim(), w = num(raw), msg = "";
+    if (raw && (isNaN(w) || w > 100)) msg = "Enter a percentage from 0 to 100. It isn't being applied.";
+    else if (w > 25) msg = fmtSmart(w) + "% is a lot of overage. 5–10% is typical.";
+    var note = document.getElementById("waste-note");
+    note.textContent = msg;
+    note.hidden = !msg;
+  }
+  wasteEl.addEventListener("input", function () {
+    state.concreteWaste = wasteEl.value;
+    updateWasteNote(); updateTotal(); save();
+  });
+  updateWasteNote();
 
   // ---------- Copy summary ----------
   document.getElementById("copy").addEventListener("click", function () {
@@ -1001,36 +1239,59 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
       else fail();
     } catch (e) { fail(); }
   });
+  function cellText(r, key, table) { return r[key].v.trim() + " " + unitLabel(table, r[key].u); }
   // Plain-text summary laid out to read well when pasted into a text or email.
   function buildSummary(mat) {
-    var m = MATERIALS[mat];
+    var M = MATERIALS[mat];
     var rule = "------------------------------";
     var date = new Date().toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
-    var lines = [m.name.toUpperCase() + " TONNAGE ESTIMATE", date, "Density: " + m.density + " t/m³", rule];
-    var skipped = 0, volOnly = 0;
+    var t = totals(mat);
+    var lines = [M.name.toUpperCase() + (M.density ? " TONNAGE ESTIMATE" : " VOLUME ESTIMATE"), date];
+    if (M.density) lines.push("Density: " + M.density + " t/m³");
+    else if (t.waste) lines.push("Overage: " + fmtSmart(t.waste) + "%");
+    lines.push(rule);
+    var skipped = 0, nonFlat = 0;
     state[mat].forEach(function (r, i) {
       var c = compute(r);
       if (!c.complete) { skipped++; return; }
-      if (!isFinite(c.area)) volOnly++;
-      var desc;
-      if (r.mode === "lw") desc = r.l.v + " " + unitLabel(LEN, r.l.u) + " × " + r.w.v + " " + unitLabel(LEN, r.w.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u) + " deep";
-      else if (r.mode === "area") desc = r.a.v + " " + unitLabel(AREA, r.a.u) + " × " + r.d.v + " " + unitLabel(DEPTH, r.d.u) + " deep";
-      else desc = r.vol.v + " " + unitLabel(VOL, r.vol.u);
-      lines.push("#" + (i + 1) + "  " + (r.label.trim() || "Measurement " + (i + 1)));
-      lines.push("    Size:    " + desc);
-      if (isFinite(c.area)) lines.push("    Area:    " + fmt(c.area, 2) + " m²");
-      lines.push("    Volume:  " + fmt(c.m3, 3) + " m³");
-      lines.push("    Weight:  " + fmt(c.m3 * m.density, 2) + " t");
+      if (!FLAT_MODES[r.mode]) nonFlat++;
+      var name = r.label.trim() || "Measurement " + (i + 1);
+      lines.push("#" + (i + 1) + "  " + name + (M.density ? "" : " (" + MODES[r.mode].label + ")"));
+      var thick = r.mode === "sidewalk" || r.mode === "slab" ? " thick" : " deep";
+      var detail = [];
+      if (r.mode === "lw" || r.mode === "sidewalk" || r.mode === "slab") {
+        detail.push(["Size", cellText(r, "l", LEN) + " × " + cellText(r, "w", LEN) + " × " + cellText(r, "d", DEPTH) + thick]);
+      } else if (r.mode === "area") {
+        detail.push(["Size", cellText(r, "a", AREA) + " × " + cellText(r, "d", DEPTH) + thick]);
+      } else if (r.mode === "vol") {
+        detail.push(["Size", cellText(r, "vol", VOL)]);
+      } else {
+        MODES[r.mode].fields.forEach(function (f) { detail.push([f[1], cellText(r, f[0], f[2])]); });
+      }
+      if (isFinite(c.area)) detail.push(["Area", fmt(c.area, 2) + " m²"]);
+      if (isFinite(c.section)) detail.push(["Section", fmt(c.section, 4) + " m²"]);
+      detail.push(["Volume", fmt(c.m3, 3) + " m³"]);
+      if (M.density) detail.push(["Weight", fmt(c.m3 * M.density, 2) + " t"]);
+      var w = 0;
+      detail.forEach(function (d) { w = Math.max(w, d[0].length + 1); });
+      detail.forEach(function (d) { lines.push("    " + (d[0] + ":").padEnd(w + 1) + d[1]); });
       lines.push("");
     });
-    var t = totals(mat);
     if (lines[lines.length - 1] === "") lines.pop();
     if (!t.count) lines.push("No complete measurements yet.");
     lines.push(rule);
     lines.push("Measurements: " + t.count);
-    if (t.area > 0) lines.push("Total area:   " + fmt(t.area, 2) + " m²" + (volOnly ? " (not incl. volume-only entries)" : ""));
-    lines.push("Total volume: " + fmt(t.m3, 3) + " m³");
-    lines.push("TOTAL WEIGHT: " + fmt(t.t, 2) + " tonnes");
+    if (t.area > 0) lines.push("Total area:   " + fmt(t.area, 2) + " m²" + (nonFlat ? " (flat areas only)" : ""));
+    if (M.density) {
+      lines.push("Total volume: " + fmt(t.m3, 3) + " m³");
+      lines.push("TOTAL WEIGHT: " + fmt(t.t, 2) + " tonnes");
+    } else if (t.waste) {
+      lines.push("Net volume:   " + fmt(t.m3, 3) + " m³");
+      lines.push("Overage " + fmtSmart(t.waste) + "%:  " + fmt(t.order - t.m3, 3) + " m³");
+      lines.push("TOTAL TO ORDER: " + fmt(t.order, 2) + " m³ (" + fmt(t.order / M3_PER_YD3, 2) + " yd³)");
+    } else {
+      lines.push("TOTAL VOLUME: " + fmt(t.m3, 2) + " m³ (" + fmt(t.m3 / M3_PER_YD3, 2) + " yd³)");
+    }
     if (skipped) lines.push("(" + skipped + " incomplete measurement" + (skipped === 1 ? "" : "s") + " not included)");
     return lines.join("\n");
   }
@@ -1056,6 +1317,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
   // ---------- Tabs ----------
   var tabs = document.querySelectorAll(".tab");
   function setTab(tab) {
+    if (tab !== "calc" && !MATERIALS[tab]) tab = "asphalt";
     state.tab = tab;
     tabs.forEach(function (t) { t.setAttribute("aria-selected", String(t.dataset.tab === tab)); });
     var isCalc = tab === "calc";
@@ -1064,8 +1326,10 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     document.getElementById("totalbar").hidden = isCalc;
     if (!isCalc) {
       var m = MATERIALS[tab];
-      document.getElementById("mat-title").textContent = m.name + " areas";
-      document.getElementById("mat-density").textContent = m.density + " t/m³";
+      document.getElementById("mat-title").textContent = m.name + (m.density ? " areas" : " pours");
+      document.getElementById("mat-density").innerHTML = m.density ? "Density <b>" + m.density + " t/m³</b>" : "Result in <b>m³</b>";
+      document.getElementById("mat-hint").textContent = HINTS[tab];
+      document.getElementById("waste-box").hidden = !!m.density;
       renderRows();
     } else {
       updateInserts();
@@ -1268,17 +1532,17 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     if (b) press(b.dataset.k);
   });
   function updateInserts() {
-    ["asphalt", "gravel"].forEach(function (m) {
-      var t = totals(m).t;
+    Object.keys(MATERIALS).forEach(function (m) {
+      var t = headline(m);
       var b = document.getElementById("ins-" + m);
-      b.innerHTML = '<span class="swatch ' + m + '"></span>' + MATERIALS[m].name + " " + fmt(t, 2) + " t";
+      b.innerHTML = '<span class="swatch ' + m + '"></span>' + MATERIALS[m].name + " " + fmt(t, 2) + (MATERIALS[m].density ? " t" : " m³");
       b.disabled = !(t > 0);
       b.style.opacity = t > 0 ? "1" : ".5";
     });
   }
-  ["asphalt", "gravel"].forEach(function (m) {
+  Object.keys(MATERIALS).forEach(function (m) {
     document.getElementById("ins-" + m).addEventListener("click", function () {
-      insertValue(Number(totals(m).t.toFixed(3)));
+      insertValue(Number(headline(m).toFixed(3)));
     });
   });
   document.addEventListener("keydown", function (e) {
@@ -1290,7 +1554,7 @@ footer.foot .ver { font-weight: 600; letter-spacing: .04em; }
     if (k) { e.preventDefault(); press(k); }
   });
 
-  setTab(state.tab === "calc" || state.tab === "gravel" ? state.tab : "asphalt");
+  setTab(state.tab);
   show();
 })();
 </script>
